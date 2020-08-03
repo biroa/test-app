@@ -1,0 +1,42 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    maria_db:
+      image: mariadb:10.4
+      container_name: laproject-mariadb
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=19810630
+        - MYSQL_DATABASE=laproject
+        - MYSQL_USER=biroa
+        - MYSQL_PASSWORD=30061981
+      ports:
+        - "1237:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: laproject-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      links: 
+          - maria_db:mariadb
+      ports:
+       - "1234:80"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: laproject-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+      links: 
+          - maria_db:mariadb
+
